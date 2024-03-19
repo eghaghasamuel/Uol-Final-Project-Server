@@ -7,8 +7,6 @@ const mongoose = require("mongoose");
 const passportConfig = require("./passport");
 const authRoute = require("./routes/auth");
 const tripRoute = require("./routes/trip");
-const path  = require('path');
-
 (async () => {
 const app = express();
 // Parse JSON bodies for this app
@@ -55,15 +53,7 @@ app.use(
 
 // Use the local authentication strategy
 passport.use(passportConfig.local);
-app.get("/*", function (req,res){
-  res.sendFile(path.join(__dirname,"../client/build/index.html"),
-  function (err) {
-    if (err) {
-      res.status(500).send(err);
-    }
-  }
-  )
-})
+
 // Routes
 app.use("/auth", authRoute);
 app.use("/trip", tripRoute);
