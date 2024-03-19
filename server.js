@@ -4,6 +4,7 @@ const cors = require("cors");
 const passport = require("passport");
 const cookieSession = require("cookie-session");
 const mongoose = require("mongoose");
+const path = require('path');
 const passportConfig = require("./passport");
 const authRoute = require("./routes/auth");
 const tripRoute = require("./routes/trip");
@@ -39,7 +40,7 @@ app.use(
 app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Enable CORS
 app.use(
@@ -49,7 +50,9 @@ app.use(
     credentials: true,
   })
 );
-
+app.get('/*', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // Use the local authentication strategy
 passport.use(passportConfig.local);
