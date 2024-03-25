@@ -10,14 +10,10 @@ router.get("/get-all-trips", async (req,res) =>{
 	let list = []
 	try {
 		const elements = await Trip.find({});
-		// console.log('All elements:', elements);
 		for(let i=0;i<(await elements).length;i++){
 			id = elements[i].owner.toHexString()
 			id_user =new mongoose.Types.ObjectId(id)
-			find_user =await User.findById(id_user)
-			
-			// console.log(find_user)
-		
+			find_user =await User.findById(id_user)		
 			list.push({title: elements[i].title,listIti: elements[i].listTrip,mail:find_user.email})
 
 			
@@ -34,12 +30,10 @@ router.post("/create-trip", async (req, res) => {
 	try {
 	  console.log(req.body.listTrip)
       t=req.body.title
-	  // Get the authenticated user's ID
 	  const userId = req.body.user_l._id;
       const objectId = new mongoose.Types.ObjectId(userId);
-	  // Create a new trip associated with the user
 	  const newTrip = new Trip({
-		title: t, // Extract trip details from the request body
+		title: t,
 		owner: userId,
 		listTrip: req.body.listTrip
 	  });
@@ -47,18 +41,12 @@ router.post("/create-trip", async (req, res) => {
 
 	  if (existingTrip) {
 		console.log("I exist")
-		// If an existing trip is found, update it
-		existingTrip.listTrip = req.body.listTrip;
-		// Update other fields as needed
-  
+		existingTrip.listTrip = req.body.listTrip;  
 		await existingTrip.save();
-  
 		return res.status(200).json({ success: true, message: "List updated successfully." });
 	  }
 	  console.log("I don't exist")
 	  await newTrip.save();
-
-	  // Update the user's trips array with the reference to the newly created trip
 	  await User.findByIdAndUpdate(userId, { $push: { trips: newTrip._id } });
   
 	  return res.status(201).json({
@@ -73,7 +61,7 @@ router.post("/create-trip", async (req, res) => {
   });
   
   router.get("/get-trips", async (req, res) => {
-    const userId = req.query.userId; // Assuming you're passing userId as a query parameter
+    const userId = req.query.userId;
     const objectId = new mongoose.Types.ObjectId(userId);
     const result = await Trip.find({owner: objectId})
     if(result){
@@ -128,21 +116,15 @@ router.post("/create-trip", async (req, res) => {
 	try {
 	  const title = req.query.title;
 	  const userId = req.query.userId;
-	 
 	  const objectId = new mongoose.Types.ObjectId(userId);
-  
-	  // Find the trip to be deleted
-	  const getTrip = await Trip.findOne({ title: title, owner: objectId });
-	  
+	  const getTrip = await Trip.findOne({ title: title, owner: objectId });	  
 	  if (!getTrip) {
 		return res.status(404).json({ success: false, message: "Trip not found." });
 	  }
   
-	  // Delete the trip
 	  const existingTrip = await Trip.findOneAndDelete({ title: title, owner: objectId });
   
 	  if (existingTrip) {
-		// Remove the trip ID from the user's trips array
 		const updateUser = await User.findByIdAndUpdate(
 		  objectId,
 		  { $pull: { trips: getTrip._id } },

@@ -10,9 +10,9 @@ const authRoute = require("./routes/auth");
 const tripRoute = require("./routes/trip");
 (async () => {
 const app = express();
-// Parse JSON bodies for this app
+
 app.use(express.json());
-// Connect to MongoDB
+
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -28,7 +28,6 @@ db.once("open", () => {
   console.log("Connected to MongoDB");
 });
 
-// Configure Passport
 app.use(
   cookieSession({
     name: "session",
@@ -42,7 +41,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, '../client/build')));
 
-// Enable CORS
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -50,14 +48,10 @@ app.use(
     credentials: true,
   })
 );
-app.get('/*', function (req, res) {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
 
-// Use the local authentication strategy
+
 passport.use(passportConfig.local);
 
-// Routes
 app.use("/auth", authRoute);
 app.use("/trip", tripRoute);
 
